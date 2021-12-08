@@ -236,6 +236,12 @@ function dragAndDrop(element, event) {
 /**************************************CANVAS*****************************************/
 
 let canvas = document.querySelector('canvas');
+let undoRedoTracker = [];
+let track = 0;
+addToundoRedoTracker();
+let undo = document.querySelector('img#undo');
+let redo = document.querySelector('img#redo');
+
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight * 4;
 
@@ -256,7 +262,63 @@ canvas.addEventListener('mousemove', (e) => {
 
 canvas.addEventListener('mouseup', () => {
   mouseDown = false;
+
+  addToundoRedoTracker();
 });
+
+function addToundoRedoTracker() {
+  let url = canvas.toDataURL();
+  undoRedoTracker.push(url);
+  track = undoRedoTracker.length - 1;
+
+  if (track > 0) {
+    undo.classList.remove('disabled');
+  }
+}
+
+undo.addEventListener('click', () => {
+  if (track > 0) {
+    track--;
+    undoRedoCanvas();
+  }
+
+  updateUndoRedoDisabledClass();
+});
+
+redo.addEventListener('click', () => {
+  if (track < undoRedoTracker.length - 1) {
+    track++;
+    undoRedoCanvas();
+  }
+
+  updateUndoRedoDisabledClass();
+});
+
+function updateUndoRedoDisabledClass() {
+  if (track <= 0) {
+    undo.classList.add('disabled');
+  } else {
+    undo.classList.remove('disabled');
+  }
+
+  if (track < undoRedoTracker.length - 1) {
+    redo.classList.remove('disabled');
+  } else {
+    redo.classList.add('disabled');
+  }
+}
+
+function undoRedoCanvas() {
+  let url = undoRedoTracker[track];
+  let img = new Image();
+  img.src = url;
+
+  img.onload = () => {
+    tool.fillStyle = 'white';
+    tool.fillRect(0, 0, canvas.width, canvas.height);
+    tool.drawImage(img, 0, 0, canvas.width, canvas.height);
+  };
+}
 
 function beginPath(strokeObj) {
   tool.beginPath();
@@ -268,7 +330,6 @@ function drawStroke(strokeObj) {
   tool.stroke();
 }
 
-//download feature
 let download = document.querySelector('img#download');
 download.addEventListener('click', () => {
   // let url = canvas.toDataURL();
