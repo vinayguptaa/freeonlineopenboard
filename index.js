@@ -338,7 +338,16 @@ download.addEventListener('click', () => {
   // a.href = url;
   // a.download = 'board.jpg';
   // a.click();
+  let noteContainers = document.querySelectorAll('.note-container');
+  noteContainers.forEach((note) => {
+    note.style.border = '1px solid #bbbbbb';
+  });
+
   getPDF();
+
+  noteContainers.forEach((note) => {
+    note.style.border = 'none';
+  });
 });
 
 function getPDF() {
